@@ -2,47 +2,172 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Telegram Form</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Information</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      padding: 20px;
+    /* Basic Reset & Font */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    input {
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      /* Use Telegram theme colors for seamless integration */
+      background-color: var(--tg-theme-bg-color, #f0f0f0);
+      color: var(--tg-theme-text-color, #222);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; /* Ensure content centers vertically */
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s; /* Smooth theme changes */
+    }
+
+    /* Form Container */
+    .form-container {
+      background-color: var(--tg-theme-secondary-bg-color, #ffffff);
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px; /* Limit max width on larger screens */
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+
+    /* Heading */
+    h2 {
+      color: var(--tg-theme-text-color, #333);
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    /* Input Fields */
+    input[type="text"],
+    input[type="email"] {
       display: block;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
+      padding: 15px;
+      margin-bottom: 15px;
       font-size: 16px;
+      border: 1px solid var(--tg-theme-hint-color, #ddd); /* Subtle border */
+      border-radius: 8px;
+      background-color: var(--tg-theme-bg-color, #f9f9f9); /* Match body or slight contrast */
+      color: var(--tg-theme-text-color, #333);
+      transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
     }
+
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder {
+      color: var(--tg-theme-hint-color, #999);
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus {
+      outline: none;
+      border-color: var(--tg-theme-button-color, #007bff); /* Highlight with theme color */
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); /* Subtle focus ring, adjust color if needed */
+    }
+
+    /* Submit Button */
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px; /* Space above the button */
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--tg-theme-button-text-color, #ffffff);
+      background-color: var(--tg-theme-button-color, #007bff);
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
     }
+
+    button:hover {
+      /* Slightly darken the button on hover */
+      background-color: var(--tg-theme-button-color, #0056b3); /* Need a way to darken programmatically or have a hover variable */
+      filter: brightness(95%); /* Simple way to darken if specific hover color isn't available */
+    }
+
+    button:active {
+      transform: scale(0.98); /* Slight press effect */
+    }
+
   </style>
 </head>
 <body>
-  <h2>Enter Your Info</h2>
-  <input type="text" id="name" placeholder="Name" />
-  <input type="email" id="email" placeholder="Email" />
-  <button onclick="submitForm()">Submit</button>
+  <div class="form-container">
+    <h2>Enter Your Info</h2>
+    <!-- Using a form tag is semantically better and allows submission via Enter key -->
+    <form id="user-form" onsubmit="submitForm(event)">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <button type="submit">Submit</button>
+    </form>
+  </div>
 
   <script>
-    function submitForm() {
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
+    // Initialize the Telegram Web App SDK
+    Telegram.WebApp.ready();
+
+    // Optional: Tell Telegram the main button should be shown (if you want to use it)
+    // Telegram.WebApp.MainButton.setText('Submit Info');
+    // Telegram.WebApp.MainButton.show();
+    // Telegram.WebApp.MainButton.onClick(function() { submitForm(); });
+
+    function submitForm(event) {
+      // Prevent default form submission if using the <form> tag's onsubmit
+      if (event) {
+        event.preventDefault();
+      }
+
+      const nameInput = document.getElementById("name");
+      const emailInput = document.getElementById("email");
+
+      // Basic validation (optional, but good practice)
+      if (!nameInput.value.trim() || !emailInput.value.trim()) {
+        alert("Please fill in both fields.");
+        return; // Stop submission if fields are empty
+      }
+      if (!emailInput.checkValidity()) {
+         alert("Please enter a valid email address.");
+         return; // Stop submission if email is invalid
+      }
+
+
+      const name = nameInput.value;
+      const email = emailInput.value;
 
       const data = { name, email };
 
       // ✅ Send data to the Telegram bot
+      console.log("Sending data:", data); // For debugging
       Telegram.WebApp.sendData(JSON.stringify(data));
 
-      // ✅ Close the Web App
-      Telegram.WebApp.close();
+      // Optional: Provide feedback to the user before closing
+      // For example, disable the button and change text
+      const submitButton = document.querySelector('#user-form button');
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending...';
+
+      // ✅ Close the Web App (might happen automatically after sendData sometimes,
+      // but explicitly calling it ensures closure)
+      // Add a small delay so the user sees the "Sending..." text
+      setTimeout(() => {
+        Telegram.WebApp.close();
+      }, 300); // 300ms delay
     }
+
+    // If using the form's onsubmit, you don't strictly need the onclick on the button anymore,
+    // but keeping it can be a fallback if JS submission logic fails.
+    // However, the type="submit" on the button and onsubmit on the form is standard.
+
   </script>
 </body>
 </html>
